@@ -7,7 +7,7 @@ package utils
 
 // BoolToUint converts bool to uint.
 func BoolToUint(b bool) uint {
-	if b == true {
+	if b {
 		return 1
 	}
 	return 0

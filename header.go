@@ -116,7 +116,9 @@ func NewFALinkHeader(
 // MarshalBinary returns the byte sequence generated from a FALinkHeader instance.
 func (h *FALinkHeader) MarshalBinary() ([]byte, error) {
 	b := make([]byte, h.MarshalLen())
-	h.MarshalTo(b)
+	if err := h.MarshalTo(b); err != nil {
+		return nil, err
+	}
 	return b, nil
 }
 
