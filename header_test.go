@@ -11,12 +11,7 @@ import (
 	"github.com/kazukiigeta/go-flnet"
 )
 
-var testcases = []struct {
-	description string
-	structured  *flnet.FALinkHeader
-	serialized  []byte
-	decodeFunc  func([]byte) (*flnet.FALinkHeader, error)
-}{
+var testcases = []testCase{
 	{
 		description: "FA link header",
 		structured: flnet.NewFALinkHeader(
@@ -57,14 +52,6 @@ var testcases = []struct {
 			0x00, 0x00, 0x00, 0x00, // LKS, TW, RCT
 			0xaa, 0x11, 0xab, 0x11, // Payload
 		},
-		decodeFunc: func(b []byte) (*flnet.FALinkHeader, error) {
-			v, err := flnet.ParseHeader(b)
-			if err != nil {
-				return nil, err
-			}
-
-			return v, nil
-		},
 	},
 }
 
@@ -73,7 +60,7 @@ func TestMessages(t *testing.T) {
 	for _, c := range testcases {
 		t.Run(c.description, func(t *testing.T) {
 			t.Run("Decode", func(t *testing.T) {
-				msg, err := c.decodeFunc(c.serialized)
+				msg, err := flnet.ParseHeader(c.serialized)
 				if err != nil {
 					t.Fatal(err)
 				}

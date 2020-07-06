@@ -11,6 +11,15 @@ import (
 	"github.com/kazukiigeta/go-flnet/utils"
 )
 
+// TCD deficitions.
+const (
+	TcdToken = iota + 65000
+	TcdCyclic
+	TcdParticipateRequest
+	TcdByteBlockReadRequest
+	TcdByteBlockWriteRequest
+)
+
 // FALinkHeader is a FL-net header.
 type FALinkHeader struct {
 	HType    [4]uint8
