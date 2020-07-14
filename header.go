@@ -89,37 +89,36 @@ func NewFALinkHeader(
 	rct uint16,
 	payload []byte,
 ) *FALinkHeader {
-	h := &FALinkHeader{}
-	h.HType = htype
-	h.TFL = tfl
-	h.SA = 0x00010000 | uint32(sna)
-	h.DA = 0x00010000 | uint32(dna)
-	h.VSeq = vseq
-	h.Seq = seq
-	h.MCTL = uint32((utils.BoolToUint(bct) << 31) + (utils.BoolToUint(ppt) << 30))
-	h.ULS = uls
-	h.MSZ = msz
-	h.MADD = madd
-	h.MFT = mft
-	h.MRLT = mrlt
-	h.Reserved = reserved
-	h.TCD = tcd
-	h.Ver = ver
-	h.CAD1 = cad1
-	h.CSZ1 = csz1
-	h.CAD2 = cad2
-	h.CSZ2 = csz2
-	h.Mode = uint16((minver << 8) + (majver << 4) + utils.BoolToUint(tokmode))
-	h.PType = ptype
-	h.CBN = cbn
-	h.TBN = tbn
-	h.BSize = bsize
-	h.LKS = lks
-	h.TW = tw
-	h.RCT = rct
-	h.Payload = payload
-
-	return h
+	return &FALinkHeader{
+		HType:    htype,
+		TFL:      tfl,
+		SA:       0x00010000 | uint32(sna),
+		DA:       0x00010000 | uint32(dna),
+		VSeq:     vseq,
+		Seq:      seq,
+		MCTL:     uint32((utils.BoolToUint(bct) << 31) + (utils.BoolToUint(ppt) << 30)),
+		ULS:      uls,
+		MSZ:      msz,
+		MADD:     madd,
+		MFT:      mft,
+		MRLT:     mrlt,
+		Reserved: reserved,
+		TCD:      tcd,
+		Ver:      ver,
+		CAD1:     cad1,
+		CSZ1:     csz1,
+		CAD2:     cad2,
+		CSZ2:     csz2,
+		Mode:     uint16((minver << 8) + (majver << 4) + utils.BoolToUint(tokmode)),
+		PType:    ptype,
+		CBN:      cbn,
+		TBN:      tbn,
+		BSize:    bsize,
+		LKS:      lks,
+		TW:       tw,
+		RCT:      rct,
+		Payload:  payload,
+	}
 }
 
 // MarshalBinary returns the byte sequence generated from a FALinkHeader instance.
