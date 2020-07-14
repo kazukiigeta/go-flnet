@@ -13,7 +13,7 @@ import (
 
 // TCD definitions.
 const (
-	TCDToken = iota + 65000
+	TCDToken uint16 = iota + 65000
 	TCDCyclic
 	TCDParticipateRequest
 	TCDByteBlockReadRequest
