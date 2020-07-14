@@ -132,6 +132,11 @@ func (h *FALinkHeader) MarshalBinary() ([]byte, error) {
 
 //MarshalTo puts the byte sequence in the byte array given as b.
 func (h *FALinkHeader) MarshalTo(b []byte) error {
+	l := len(b)
+	if l < 64 {
+		return io.ErrUnexpectedEOF
+	}
+
 	copy(b, h.HType[:])
 	binary.BigEndian.PutUint32(b[4:], h.TFL)
 	binary.BigEndian.PutUint32(b[8:], h.SA)
@@ -160,6 +165,10 @@ func (h *FALinkHeader) MarshalTo(b []byte) error {
 	b[60] = h.LKS
 	b[61] = h.TW
 	binary.BigEndian.PutUint16(b[62:], h.RCT)
+
+	if l < h.MarshalLen() {
+		return io.ErrUnexpectedEOF
+	}
 	copy(b[64:h.MarshalLen()], h.Payload)
 
 	return nil
