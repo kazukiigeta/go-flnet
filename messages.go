@@ -31,7 +31,7 @@ func NewToken() *Token {
 			0, 0, // ULS, M_SZ
 			0,       // M_ADD
 			0, 0, 0, // MFT, M_RLT, reserved
-			TcdToken, 0, // TCD, VER
+			TCDToken, 0, // TCD, VER
 			0, 0, // C_AD1, C_SZ1
 			0, 0, // C_AD2, C_SZ2
 			0, 3, true, 0x80, 0, // MODE, P_TYPE, PRI
