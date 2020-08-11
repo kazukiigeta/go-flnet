@@ -18,6 +18,14 @@ const (
 	TCDParticipateRequest
 	TCDByteBlockReadRequest
 	TCDByteBlockWriteRequest
+	TCDWordBlockReadRequest
+	TCDWordBlockWriteRequest
+	TCDNetworkParameterReadRequest
+	TCDNetworkParameterWriteRequest
+	TCDStopCommandRequest
+	TCDOperationCommandRequest
+	TCDProfileReadRequest
+	TCDTrigger
 )
 
 // FALinkHeader is a FL-net header.
@@ -50,7 +58,6 @@ type FALinkHeader struct {
 	LKS      uint8
 	TW       uint8
 	RCT      uint16
-	Payload  []byte
 }
 
 //NewFALinkHeader creates a new FALinkHeader.
@@ -87,7 +94,6 @@ func NewFALinkHeader(
 	lks uint8,
 	tw uint8,
 	rct uint16,
-	payload []byte,
 ) *FALinkHeader {
 	return &FALinkHeader{
 		HType:    htype,
@@ -117,7 +123,6 @@ func NewFALinkHeader(
 		LKS:      lks,
 		TW:       tw,
 		RCT:      rct,
-		Payload:  payload,
 	}
 }
 
@@ -166,17 +171,12 @@ func (h *FALinkHeader) MarshalTo(b []byte) error {
 	b[61] = h.TW
 	binary.BigEndian.PutUint16(b[62:], h.RCT)
 
-	if l < h.MarshalLen() {
-		return io.ErrUnexpectedEOF
-	}
-	copy(b[64:h.MarshalLen()], h.Payload)
-
 	return nil
 }
 
 // MarshalLen returns the serial length.
 func (h *FALinkHeader) MarshalLen() int {
-	return 64 + len(h.Payload)
+	return 64
 }
 
 // ParseHeader decodes given byte sequence as a FL-net common header.
@@ -221,6 +221,6 @@ func (h *FALinkHeader) UnmarshalBinary(b []byte) error {
 	h.TBN = uint8(b[61])
 	h.TBN = uint8(b[62])
 	h.RCT = binary.BigEndian.Uint16(b[62:64])
-	h.Payload = b[64:]
+
 	return nil
 }
