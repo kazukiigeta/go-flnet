@@ -6,7 +6,6 @@ package flnet
 
 import (
 	"encoding/binary"
-	"io"
 
 	"github.com/kazukiigeta/go-flnet/utils"
 )
@@ -15,7 +14,7 @@ import (
 const (
 	TCDToken uint16 = iota + 65000
 	TCDCyclic
-	TCDParticipateRequest
+	TCDParticipationRequest
 	TCDByteBlockReadRequest
 	TCDByteBlockWriteRequest
 	TCDWordBlockReadRequest
@@ -30,7 +29,7 @@ const (
 
 // FALinkHeader is a FL-net header.
 type FALinkHeader struct {
-	HType    [4]uint8
+	HType    [4]byte
 	TFL      uint32
 	SA       uint32
 	DA       uint32
@@ -62,7 +61,7 @@ type FALinkHeader struct {
 
 //NewFALinkHeader creates a new FALinkHeader.
 func NewFALinkHeader(
-	htype [4]uint8,
+	htype [4]byte,
 	tfl uint32,
 	sna uint8,
 	dna uint8,
@@ -139,7 +138,7 @@ func (h *FALinkHeader) MarshalBinary() ([]byte, error) {
 func (h *FALinkHeader) MarshalTo(b []byte) error {
 	l := len(b)
 	if l < 64 {
-		return io.ErrUnexpectedEOF
+		return ErrTooShortToMarshalBinary
 	}
 
 	copy(b, h.HType[:])
@@ -191,8 +190,9 @@ func ParseHeader(b []byte) (*FALinkHeader, error) {
 // UnmarshalBinary sets the values retrieved from byte sequence in a FL-net common header.
 func (h *FALinkHeader) UnmarshalBinary(b []byte) error {
 	if len(b) < 64 {
-		return io.ErrUnexpectedEOF
+		return ErrTooShortToParse
 	}
+
 	copy(h.HType[:], b[:4])
 	h.TFL = binary.BigEndian.Uint32(b[4:8])
 	h.SA = binary.BigEndian.Uint32(b[8:12])
@@ -203,8 +203,8 @@ func (h *FALinkHeader) UnmarshalBinary(b []byte) error {
 	h.ULS = binary.BigEndian.Uint16(b[28:30])
 	h.MSZ = binary.BigEndian.Uint16(b[30:32])
 	h.MADD = binary.BigEndian.Uint32(b[32:36])
-	h.MFT = uint8(b[37])
-	h.MRLT = uint8(b[38])
+	h.MFT = uint8(b[36])
+	h.MRLT = uint8(b[37])
 	h.Reserved = binary.BigEndian.Uint16(b[38:40])
 	h.TCD = binary.BigEndian.Uint16(b[40:42])
 	h.Ver = binary.BigEndian.Uint16(b[42:44])
@@ -213,13 +213,13 @@ func (h *FALinkHeader) UnmarshalBinary(b []byte) error {
 	h.CAD2 = binary.BigEndian.Uint16(b[48:50])
 	h.CSZ2 = binary.BigEndian.Uint16(b[50:52])
 	h.Mode = binary.BigEndian.Uint16(b[52:54])
-	h.PType = uint8(b[55])
-	h.Pri = uint8(b[56])
-	h.CBN = uint8(b[57])
-	h.TBN = uint8(b[58])
+	h.PType = uint8(b[54])
+	h.Pri = uint8(b[55])
+	h.CBN = uint8(b[56])
+	h.TBN = uint8(b[57])
 	h.BSize = binary.BigEndian.Uint16(b[58:60])
-	h.TBN = uint8(b[61])
-	h.TBN = uint8(b[62])
+	h.LKS = uint8(b[60])
+	h.TW = uint8(b[61])
 	h.RCT = binary.BigEndian.Uint16(b[62:64])
 
 	return nil
