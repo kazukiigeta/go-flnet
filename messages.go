@@ -260,3 +260,83 @@ func (t *Trigger) UnmarshalBinary(b []byte) error {
 	}
 	return nil
 }
+
+// ParticipationRequest is a ParticipationRequest frame of FA Link frame.
+type ParticipationRequest struct {
+	*ParticipationHeader
+}
+
+// NewParticipationRequest creates a new ParticipationRequest.
+func NewParticipationRequest(sna, dna uint8, vseq, seq uint32, ndn, vdn, msn string) *ParticipationRequest {
+	p := &ParticipationRequest{}
+	p.ParticipationHeader = &ParticipationHeader{}
+	p.ParticipationHeader.Header = NewFALinkHeader(
+		[4]uint8{0x46, 0x41, 0x43, 0x4e}, // H_TYPE
+		0,                                // TFL
+		sna,                              // SNA
+		dna,                              // DNA
+		vseq,                             // V_SEQ
+		seq,                              // SEQ
+		false, false, false,              // M_CTL
+		0, 0, // ULS, M_SZ
+		0,          // M_ADD
+		0x0a, 0, 0, // MFT, M_RLT, reserved
+		TCDParticipationRequest, 0, // TCD, VER
+		0, 0x04, // C_AD1, C_SZ1
+		0, 0x40, // C_AD2, C_SZ2
+		0, 3, true, 0x80, 0, // MODE, P_TYPE, PRI
+		1, 1, 0x40, // CBN, TBN, BSIZE
+		0, 0x32, 0, // LKS, TW, RCT
+	)
+	p.ParticipationHeader.Header.TFL = uint32(p.MarshalLen())
+	p.ParticipationHeader.Header.BSize = uint16(p.MarshalLen())
+
+	p.ParticipationHeader.NDN = [10]byte{0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20}
+	p.ParticipationHeader.VDN = [10]byte{0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20}
+	p.ParticipationHeader.MSN = [10]byte{0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20}
+
+	copy(p.NDN[:len(p.NDN)], []byte(ndn))
+	copy(p.VDN[:len(p.VDN)], []byte(vdn))
+	copy(p.MSN[:len(p.MSN)], []byte(msn))
+
+	return p
+}
+
+// MarshalBinary returns the byte sequence generated from a ParticipationRequest.
+func (p *ParticipationRequest) MarshalBinary() ([]byte, error) {
+	b := make([]byte, p.MarshalLen())
+	if err := p.ParticipationHeader.MarshalTo(b); err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+//MarshalTo puts the byte sequence in the byte array given as b.
+func (p *ParticipationRequest) MarshalTo(b []byte) error {
+	l := len(b)
+	if l < p.MarshalLen() {
+		return io.ErrUnexpectedEOF
+	}
+
+	err := p.ParticipationHeader.MarshalTo(b)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalLen returns the serial length of ParticipationRequest
+func (p *ParticipationRequest) MarshalLen() int {
+	return p.ParticipationHeader.MarshalLen()
+}
+
+// UnmarshalBinary sets the values retrieved from byte sequence in a ParticipationRequest frame.
+func (p *ParticipationRequest) UnmarshalBinary(b []byte) error {
+	err := p.ParticipationHeader.UnmarshalBinary(b)
+	if err != nil {
+		return err
+	}
+	return nil
+}

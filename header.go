@@ -14,7 +14,7 @@ import (
 const (
 	TCDToken uint16 = iota + 65000
 	TCDCyclic
-	TCDParticipateRequest
+	TCDParticipationRequest
 	TCDByteBlockReadRequest
 	TCDByteBlockWriteRequest
 	TCDWordBlockReadRequest
