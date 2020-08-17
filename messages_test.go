@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/kazukiigeta/go-flnet"
 )
 
@@ -39,13 +40,24 @@ func TestToken(t *testing.T) {
 
 	for _, c := range testcases {
 		t.Run(c.description, func(t *testing.T) {
+			t.Run("Decode", func(t *testing.T) {
+				msg, err := flnet.Parse(c.serialized)
+				if err != nil {
+					t.Fatal(err)
+				}
+				got, want := msg, c.structured
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("differs: (-want +got)\n%s", diff)
+				}
+			})
 			t.Run("Serialize", func(t *testing.T) {
 				b, err := c.structured.MarshalBinary()
 				if err != nil {
 					t.Fatal(err)
 				}
-				if got, want := b, c.serialized; !reflect.DeepEqual(got, want) {
-					t.Errorf("got %v, want %v", got, want)
+				got, want := b, c.serialized
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("differs: (-want +got)\n%s", diff)
 				}
 			})
 		})
@@ -84,6 +96,16 @@ func TestTrigger(t *testing.T) {
 
 	for _, c := range testcases {
 		t.Run(c.description, func(t *testing.T) {
+			t.Run("Decode", func(t *testing.T) {
+				msg, err := flnet.Parse(c.serialized)
+				if err != nil {
+					t.Fatal(err)
+				}
+				got, want := msg, c.structured
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("differs: (-want +got)\n%s", diff)
+				}
+			})
 			t.Run("Serialize", func(t *testing.T) {
 				b, err := c.structured.MarshalBinary()
 				if err != nil {

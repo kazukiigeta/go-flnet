@@ -5,9 +5,9 @@
 package flnet_test
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/kazukiigeta/go-flnet"
 )
 
@@ -15,13 +15,13 @@ var testcases = []testCase{
 	{
 		description: "FA link header",
 		structured: flnet.NewFALinkHeader(
-			[4]uint8{0x46, 0x41, 0x43, 0x4e}, // H_TYPE
-			0x40,                             // TFL
-			1,                                // SA
-			0xff,                             // DA
-			0,                                // V_SEQ
-			0,                                // SEQ
-			true, false, false,               // M_CTL
+			[4]byte{0x46, 0x41, 0x43, 0x4e}, // H_TYPE
+			0x40,                            // TFL
+			1,                               // SA
+			0xff,                            // DA
+			0,                               // V_SEQ
+			0,                               // SEQ
+			true, false, false,              // M_CTL
 			0, 0, // ULS, M_SZ
 			0,       // M_ADD
 			0, 0, 0, // MFT, M_RLT, reserved
@@ -62,8 +62,9 @@ func TestMessages(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if got, want := msg, c.structured; !reflect.DeepEqual(got, want) {
-					t.Errorf("got %v, want %v", got, want)
+				got, want := msg, c.structured
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("differs: (-want +got)\n%s", diff)
 				}
 			})
 			t.Run("Serialize", func(t *testing.T) {
@@ -71,10 +72,10 @@ func TestMessages(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if got, want := b, c.serialized; !reflect.DeepEqual(got, want) {
-					t.Errorf("got %v, want %v", got, want)
+				got, want := b, c.serialized
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("differs: (-want +got)\n%s", diff)
 				}
-
 			})
 		})
 	}
