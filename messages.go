@@ -35,6 +35,12 @@ func Parse(b []byte) (FLnet, error) {
 		f = &Token{
 			Header: &FALinkHeader{},
 		}
+	case TCDCyclic:
+		d := []byte{}
+		f = &Cyclic{
+			Header: &FALinkHeader{},
+			Data:   d,
+		}
 	case TCDTrigger:
 		f = &Trigger{
 			ParticipationHeader: &ParticipationHeader{
@@ -338,5 +344,85 @@ func (p *ParticipationRequest) UnmarshalBinary(b []byte) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// Cyclic is a cyclic frame of FA Link frame.
+type Cyclic struct {
+	Header *FALinkHeader
+	Data   []byte
+}
+
+// NewCyclic creates a new Cyclic.
+func NewCyclic(sna, dna uint8, vseq uint32, cad1, csz1, cad2, csz2 uint16, data *[]byte) *Cyclic {
+	c := &Cyclic{
+		Header: NewFALinkHeader(
+			[4]byte{0x46, 0x41, 0x43, 0x4e}, // H_TYPE
+			0x40,                            // TFL
+			sna,                             // SNA
+			dna,                             // DNA
+			vseq,                            // V_SEQ
+			0,                               // SEQ
+			false, false, false,             // M_CTL
+			0, 0, // ULS, M_SZ
+			0,          // M_ADD
+			0x0a, 0, 0, // MFT, M_RLT, reserved
+			TCDCyclic, 0, // TCD, VER
+			cad1, csz1, // C_AD1, C_SZ1
+			cad2, csz2, // C_AD2, C_SZ2
+			0, 3, true, 0x80, 0, // MODE, P_TYPE, PRI
+			1, 1, 0x40, // CBN, TBN, BSIZE
+			0, 0x32, 0, // LKS, TW, RCT
+		),
+	}
+
+	if data != nil {
+		c.Data = *data
+		lenFrame := c.MarshalLen()
+		c.Header.TFL = uint32(lenFrame)
+		c.Header.BSize = uint16(lenFrame)
+	} else {
+		noData := []byte{}
+		c.Data = noData
+		lenFrame := c.MarshalLen()
+		c.Header.TFL = uint32(lenFrame) + uint32(c.Header.CSZ1+c.Header.CSZ2)*2
+		c.Header.BSize = uint16(lenFrame)
+	}
+	return c
+}
+
+// MarshalBinary returns the byte sequence generated from a Cyclic.
+func (c *Cyclic) MarshalBinary() ([]byte, error) {
+	b := make([]byte, c.MarshalLen())
+	if err := c.MarshalTo(b); err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+//MarshalTo puts the byte sequence in the byte array given as b.
+func (c *Cyclic) MarshalTo(b []byte) error {
+	if err := c.Header.MarshalTo(b); err != nil {
+		return err
+	}
+	copy(b[c.Header.MarshalLen():], c.Data)
+
+	return nil
+}
+
+// MarshalLen returns the serial length of Cyclic.
+func (c *Cyclic) MarshalLen() int {
+	return c.Header.MarshalLen() + len(c.Data)
+}
+
+// UnmarshalBinary sets the values retrieved from byte sequence in a cyclic frame.
+func (c *Cyclic) UnmarshalBinary(b []byte) error {
+	err := c.Header.UnmarshalBinary(b)
+	if err != nil {
+		return err
+	}
+	c.Data = b[c.Header.MarshalLen():]
+
 	return nil
 }
